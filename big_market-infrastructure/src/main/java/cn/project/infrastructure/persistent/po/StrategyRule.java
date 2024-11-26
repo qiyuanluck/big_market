@@ -1,5 +1,10 @@
 package cn.project.infrastructure.persistent.po;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Date;
 
 /**
@@ -7,6 +12,10 @@ import java.util.Date;
  * @Date: 2024/11/25 19:51
  * @Description: 策略规则
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 public class StrategyRule {
     /**
      * 自增ID
