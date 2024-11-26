@@ -39,7 +39,7 @@ mybatis:
 redis:
   sdk:
     config:
-      host: 47.120.16.38
+      host: 47.122.2.56
       port: 6379
       password: 123456
       pool-size: 10
