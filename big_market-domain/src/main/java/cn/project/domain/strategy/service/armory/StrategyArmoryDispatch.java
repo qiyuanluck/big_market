@@ -36,7 +36,7 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
         assembleLotteryStrategy(String.valueOf(strategyId),strategyAwardEntities);
 
         // 2. 权重规则配置，适用于rule_weight权重规则配置
-        StrategyEntity strategyEntity = repository.queryStrategyEntityByStrategy(strategyId);
+        StrategyEntity strategyEntity = repository.queryStrategyEntityByStrategyId(strategyId);
         String ruleWeight = strategyEntity.getRuleWeight();
         if (null == strategyEntity) return true;
 
@@ -46,12 +46,15 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
             throw new AppException(ResponseCode.STRATEGY_RULE_WEIGHT_IS_NULL.getCode(),ResponseCode.STRATEGY_RULE_WEIGHT_IS_NULL.getInfo());
         }
 
-        // 4.
+        // 4.返回值例子{
+        //    "4000:102,103,104,105"=[102, 103, 104, 105],
+        //    "5000:102,103,104,105,106"=[102, 103, 104, 105, 106]
+        //}
         Map<String, List<Integer>> ruleWeightValueMap = strategyRuleEntity.getRuleWeightValue();
         Set<String> keys = ruleWeightValueMap.keySet();
         for (String key : keys){
             List<Integer> ruleWeightValues = ruleWeightValueMap.get(key);
-            // 深拷贝，不破坏原来的值
+            // 深拷贝，不破坏原来的值，保证strategyAwardEntities 不会被修改，不影响到原始集合
             ArrayList<StrategyAwardEntity> strategyAwardEntitiesClone = new ArrayList<>(strategyAwardEntities);
             strategyAwardEntitiesClone.removeIf(entity -> !ruleWeightValues.contains(entity.getAwardId()));
             assembleLotteryStrategy(String.valueOf(strategyId).concat("_").concat(key),strategyAwardEntitiesClone);

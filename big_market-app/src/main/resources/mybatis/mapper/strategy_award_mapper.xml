@@ -29,9 +29,9 @@
         where strategy_id = #{strategy_id}
     </select>
 
-<!--    <select id="queryStrategyAwardRuleModels" parameterType="com.project.market.infrastructure.persistent.po.StrategyAward" resultType="java.lang.String">-->
-<!--        select rule_models from strategy_award-->
-<!--        where strategy_id = #{strategyId} and award_id = #{awardId}-->
-<!--    </select>-->
+    <select id="queryStrategyAwardRuleModels" parameterType="cn.project.infrastructure.persistent.po.StrategyAward" resultType="java.lang.String">
+        select rule_models from strategy_award
+        where strategy_id = #{strategyId} and award_id = #{awardId}
+    </select>
 
 </mapper>

@@ -26,7 +26,9 @@ public interface IStrategyRepository {
 
     void storeStrategyAwardSearchRateTables(String key, Integer rateRange, HashMap<Integer, Integer> shuffleStrategyAwardSearchRateTables);
 
-    StrategyEntity queryStrategyEntityByStrategy(Long strategyId);
-
     StrategyRuleEntity queryStrategyRule(Long strategyId, String ruleModel);
+
+    String queryStrategyRuleValue(Long strategyId, Integer awardId, String ruleModel);
+
+    StrategyEntity queryStrategyEntityByStrategyId(Long strategyId);
 }

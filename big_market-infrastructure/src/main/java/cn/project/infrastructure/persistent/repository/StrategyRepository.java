@@ -93,7 +93,32 @@ public class StrategyRepository implements IStrategyRepository {
     }
 
     @Override
-    public StrategyEntity queryStrategyEntityByStrategy(Long strategyId) {
+    public StrategyRuleEntity queryStrategyRule(Long strategyId, String ruleModel) {
+        StrategyRule strategyRuleReq = new StrategyRule();
+        strategyRuleReq.setStrategyId(strategyId);
+        strategyRuleReq.setRuleModel(ruleModel);
+        StrategyRule strategyRuleRes = strategyRuleDao.queryStrategyRule(strategyRuleReq);
+        return StrategyRuleEntity.builder()
+                .strategyId(strategyRuleRes.getStrategyId())
+                .awardId(strategyRuleRes.getAwardId())
+                .ruleType(strategyRuleRes.getRuleType())
+                .ruleModel(strategyRuleRes.getRuleModel())
+                .ruleValue(strategyRuleRes.getRuleValue())
+                .ruleDesc(strategyRuleRes.getRuleDesc())
+                .build();
+    }
+
+    @Override
+    public String queryStrategyRuleValue(Long strategyId, Integer awardId, String ruleModel) {
+        StrategyRule strategyRule = new StrategyRule();
+        strategyRule.setStrategyId(strategyId);
+        strategyRule.setAwardId(awardId);
+        strategyRule.setRuleModel(ruleModel);
+        return strategyRuleDao.queryStrategyRuleValue(strategyRule);
+    }
+
+    @Override
+    public StrategyEntity queryStrategyEntityByStrategyId(Long strategyId) {
         // 1. 先从缓存中获取
         String cacheKey = Constants.RedisKey.STRATEGY_KEY + strategyId;
         StrategyEntity strategyEntity = redisService.getValue(cacheKey);
@@ -110,22 +135,6 @@ public class StrategyRepository implements IStrategyRepository {
         redisService.setValue(cacheKey, strategyEntity);
 
         return strategyEntity;
-    }
-
-    @Override
-    public StrategyRuleEntity queryStrategyRule(Long strategyId, String ruleModel) {
-        StrategyRule strategyRuleReq = new StrategyRule();
-        strategyRuleReq.setStrategyId(strategyId);
-        strategyRuleReq.setRuleModel(ruleModel);
-        StrategyRule strategyRuleRes = strategyRuleDao.queryStrategyRule(strategyRuleReq);
-        return StrategyRuleEntity.builder()
-                .strategyId(strategyRuleRes.getStrategyId())
-                .awardId(strategyRuleRes.getAwardId())
-                .ruleType(strategyRuleRes.getRuleType())
-                .ruleModel(strategyRuleRes.getRuleModel())
-                .ruleValue(strategyRuleRes.getRuleValue())
-                .ruleDesc(strategyRuleRes.getRuleDesc())
-                .build();
     }
 
 }
