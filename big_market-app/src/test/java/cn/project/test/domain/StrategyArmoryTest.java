@@ -31,8 +31,8 @@ public class StrategyArmoryTest {
     @Before
     public void test_strategyArmory(){
         boolean success = strategyArmory.assembleLotteryStrategy(100001L);
-//        boolean success1 = strategyArmory.assembleLotteryStrategy(100002L);
-//        boolean success2 = strategyArmory.assembleLotteryStrategy(100003L);
+        boolean success1 = strategyArmory.assembleLotteryStrategy(100002L);
+        boolean success2 = strategyArmory.assembleLotteryStrategy(100003L);
 
         log.info("测试结果:{}",success);
     }
@@ -42,8 +42,8 @@ public class StrategyArmoryTest {
     @Test
     public void test_getRandomAwardId() {
         log.info("测试结果：{} - 奖品ID值", strategyDispatch.getRandomAwardId(100001L));
-//        log.info("测试结果：{} - 奖品ID值", strategyDispatch.getRandomAwardId(100002L));
-//        log.info("测试结果：{} - 奖品ID值", strategyDispatch.getRandomAwardId(100003L));
+        log.info("测试结果：{} - 奖品ID值", strategyDispatch.getRandomAwardId(100002L));
+        log.info("测试结果：{} - 奖品ID值", strategyDispatch.getRandomAwardId(100003L));
 
     }
 

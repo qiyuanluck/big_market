@@ -46,11 +46,7 @@ public class StrategyRuleEntity {
      */
     private String ruleDesc;
 
-    /**
-     * 获取权重值
-     * 案例： 4000:102,103,104,105 5000:102,103,104,105,106.....
-     */
-    public Map<String, List<Integer>> getRuleWeightValue(){
+    public Map<String, List<Integer>> getRuleWeightValues(){
         if (!"rule_weight".equals(ruleModel)) return null;
         // 存放结果的map
         Map<String, List<Integer>> resultMap = new HashMap<>();

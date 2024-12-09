@@ -1,6 +1,6 @@
 package cn.project.domain.strategy.model.entity;
 
-import cn.project.domain.strategy.model.vo.RuleLogicCheckTypeVO;
+import cn.project.domain.strategy.model.valobj.RuleLogicCheckTypeVO;
 import lombok.*;
 
 /**

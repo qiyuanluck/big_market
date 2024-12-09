@@ -1,4 +1,4 @@
-package cn.project.domain.strategy.model.vo;
+package cn.project.domain.strategy.model.valobj;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
  * @Author: qiyuan
  * @Date: 2024/11/27 14:39
- * @Description:
+ * @Description: 规则过滤校验类型值对象
  */
 @Getter
 @AllArgsConstructor
