@@ -3,6 +3,7 @@ package cn.project.domain.strategy.repository;
 import cn.project.domain.strategy.model.entity.StrategyAwardEntity;
 import cn.project.domain.strategy.model.entity.StrategyEntity;
 import cn.project.domain.strategy.model.entity.StrategyRuleEntity;
+import cn.project.domain.strategy.model.valobj.RuleTreeVO;
 import cn.project.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 
 import java.math.BigDecimal;
@@ -25,18 +26,17 @@ public interface IStrategyRepository {
 
     Integer getStrategyAwardAssemble(String key, int rateKey);
 
-//    void storeStrategyAwardSearchRateTables(String key, Integer rateRange, HashMap<Integer, Integer> shuffleStrategyAwardSearchRateTables);
-
     StrategyRuleEntity queryStrategyRule(Long strategyId, String ruleModel);
 
     String queryStrategyRuleValue(Long strategyId, Integer awardId, String ruleModel);
 
     String queryStrategyRuleValue(Long strategyId, String ruleModel);
 
-
     StrategyEntity queryStrategyEntityByStrategyId(Long strategyId);
 
     StrategyAwardRuleModelVO queryStrategyAwardRuleModelVO(Long strategyId, Integer awardId);
 
     void storeStrategyAwardSearchRateTable(String key, Integer rateRange, Map<Integer, Integer> strategyAwardSearchRateTable);
+
+    RuleTreeVO queryRuleTreeVOByTreeId(String treeId);
 }
