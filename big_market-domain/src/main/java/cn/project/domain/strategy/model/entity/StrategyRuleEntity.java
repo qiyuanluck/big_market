@@ -46,30 +46,30 @@ public class StrategyRuleEntity {
      */
     private String ruleDesc;
 
-    public Map<String, List<Integer>> getRuleWeightValues(){
+    public Map<String, List<Integer>> getRuleWeightValues() {
         if (!"rule_weight".equals(ruleModel)) return null;
-        // 存放结果的map
-        Map<String, List<Integer>> resultMap = new HashMap<>();
-        // 把值通过空格分割 4000:102,103,104,105 5000:102,103,104,105，4000和5000分隔开
         String[] ruleValueGroups = ruleValue.split(Constants.SPACE);
-        for (String ruleValueGroup : ruleValueGroups){
-            //检查是否为空
-            if (ruleValueGroup == null || ruleValueGroup.isEmpty()){
+        Map<String, List<Integer>> resultMap = new HashMap<>();
+        for (String ruleValueGroup : ruleValueGroups) {
+            // 检查输入是否为空
+            if (ruleValueGroup == null || ruleValueGroup.isEmpty()) {
                 return resultMap;
             }
-            // 分割字符串获取键和值，通过冒号分割,4000:102,103,104,105分割成两个
+            // 分割字符串以获取键和值
             String[] parts = ruleValueGroup.split(Constants.COLON);
-            if (parts.length != 2){
+            if (parts.length != 2) {
                 throw new IllegalArgumentException("rule_weight rule_rule invalid input format" + ruleValueGroup);
             }
-            // 解析值,102,103,104,105通过逗号分割
+            // 解析值
             String[] valueStrings = parts[1].split(Constants.SPLIT);
             List<Integer> values = new ArrayList<>();
-            for (String valueString : valueStrings){
+            for (String valueString : valueStrings) {
                 values.add(Integer.parseInt(valueString));
             }
-            resultMap.put(ruleValueGroup,values);
+            // 将键和值放入Map中
+            resultMap.put(ruleValueGroup, values);
         }
+
         return resultMap;
     }
 }

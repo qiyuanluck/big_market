@@ -6,6 +6,7 @@ import cn.project.domain.strategy.model.entity.RuleMatterEntity;
 import cn.project.domain.strategy.model.valobj.RuleLogicCheckTypeVO;
 import cn.project.domain.strategy.model.valobj.RuleTreeVO;
 import cn.project.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
+import cn.project.domain.strategy.model.valobj.StrategyAwardStockKeyVO;
 import cn.project.domain.strategy.repository.IStrategyRepository;
 import cn.project.domain.strategy.service.AbstractRaffleStrategy;
 import cn.project.domain.strategy.service.armory.IStrategyDispatch;
@@ -38,20 +39,9 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy {
 
     @Override
     public DefaultChainFactory.StrategyAwardVO raffleLogicChain(String userId, Long strategyId) {
-        if (defaultChainFactory == null) {
-            throw new IllegalStateException("defaultChainFactory 未初始化。");
-        }
-        if (strategyId == null || strategyId <= 0) {
-            throw new IllegalArgumentException("无效的 strategyId: " + strategyId);
-        }
         ILogicChain logicChain = defaultChainFactory.openLogicChain(strategyId);
-        if (logicChain == null) {
-            throw new IllegalStateException("无法为 strategyId: " + strategyId + " 打开逻辑链。");
-        }
         return logicChain.logic(userId, strategyId);
     }
-
-
 
     @Override
     public DefaultTreeFactory.StrategyAwardVO raffleLogicTree(String userId, Long strategyId, Integer awardId) {
@@ -66,4 +56,15 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy {
         IDecisionTreeEngine treeEngine = defaultTreeFactory.openLogicTree(ruleTreeVO);
         return treeEngine.process(userId, strategyId, awardId);
     }
+
+    @Override
+    public StrategyAwardStockKeyVO takeQueueValue() throws InterruptedException {
+        return repository.takeQueueValue();
+    }
+
+    @Override
+    public void updateStrategyAwardStock(Long strategyId, Integer awardId) {
+        repository.updateStrategyAwardStock(strategyId, awardId);
+    }
+
 }

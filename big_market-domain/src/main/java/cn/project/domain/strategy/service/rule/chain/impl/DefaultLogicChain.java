@@ -14,7 +14,7 @@ import javax.annotation.Resource;
  * @Description: 兜底
  */
 @Slf4j
-@Component("default")
+@Component("rule_default")
 public class DefaultLogicChain extends AbstractLogicChain {
 
     @Resource
