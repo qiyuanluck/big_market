@@ -8,7 +8,6 @@ import cn.project.domain.strategy.model.valobj.StrategyAwardStockKeyVO;
  * @Description: 抽奖库存相关服务，获取库存消耗队列
  */
 public interface IRaffleStock {
-
     /**
      * 获取奖品库存消耗队列
      *
@@ -24,5 +23,5 @@ public interface IRaffleStock {
      * @param awardId    奖品ID
      */
     void updateStrategyAwardStock(Long strategyId, Integer awardId);
-
 }
+

@@ -66,7 +66,6 @@ public class DecisionTreeEngine implements IDecisionTreeEngine {
             }
         }
         return null;
-//        throw new RuntimeException("决策树引擎，nextNode 计算失败，未找到可执行节点！");
     }
 
     public boolean decisionLogic(String matterValue, RuleTreeNodeLineVO nodeLine) {
@@ -84,3 +83,4 @@ public class DecisionTreeEngine implements IDecisionTreeEngine {
     }
 
 }
+

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component("rule_lock")
 public class RuleLockLogicTreeNode implements ILogicTreeNode {
-    // 用户抽奖次数
+
+    // 用户抽奖次数，后续完成这部分流程开发的时候，从数据库/Redis中读取
     private Long userRaffleCount = 10L;
 
     @Override
@@ -40,4 +41,5 @@ public class RuleLockLogicTreeNode implements ILogicTreeNode {
                 .ruleLogicCheckType(RuleLogicCheckTypeVO.TAKE_OVER)
                 .build();
     }
+
 }

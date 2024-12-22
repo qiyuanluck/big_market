@@ -95,4 +95,5 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
         }
         return ruleValueMap;
     }
+
 }

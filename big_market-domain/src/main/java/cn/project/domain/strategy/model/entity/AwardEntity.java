@@ -15,12 +15,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class AwardEntity {
-    /**
-     * 用户ID
-     */
+    /** 用户ID */
     private String userId;
-    /**
-     * 奖品ID
-     */
+    /** 奖品ID */
     private Integer awardId;
 }

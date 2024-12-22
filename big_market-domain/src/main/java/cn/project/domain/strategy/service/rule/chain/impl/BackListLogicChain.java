@@ -52,4 +52,5 @@ public class BackListLogicChain extends AbstractLogicChain {
     protected String ruleModel() {
         return DefaultChainFactory.LogicModel.RULE_BLACKLIST.getCode();
     }
+
 }

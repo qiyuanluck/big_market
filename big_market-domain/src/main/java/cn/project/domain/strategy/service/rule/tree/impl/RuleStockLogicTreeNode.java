@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 @Slf4j
 @Component("rule_stock")
 public class RuleStockLogicTreeNode implements ILogicTreeNode {
+
     @Resource
     private IStrategyDispatch strategyDispatch;
     @Resource
@@ -54,6 +55,5 @@ public class RuleStockLogicTreeNode implements ILogicTreeNode {
                 .ruleLogicCheckType(RuleLogicCheckTypeVO.ALLOW)
                 .build();
     }
-
 
 }

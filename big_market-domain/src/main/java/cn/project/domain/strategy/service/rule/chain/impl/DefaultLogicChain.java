@@ -34,4 +34,6 @@ public class DefaultLogicChain extends AbstractLogicChain {
     protected String ruleModel() {
         return DefaultChainFactory.LogicModel.RULE_DEFAULT.getCode();
     }
+
 }
+

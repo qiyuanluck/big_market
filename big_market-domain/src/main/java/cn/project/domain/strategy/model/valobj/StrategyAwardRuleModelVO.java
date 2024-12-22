@@ -19,5 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StrategyAwardRuleModelVO {
+
     private String ruleModels;
+
 }

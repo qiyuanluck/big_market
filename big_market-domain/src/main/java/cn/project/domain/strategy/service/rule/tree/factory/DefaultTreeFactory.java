@@ -52,4 +52,5 @@ public class DefaultTreeFactory {
         /** 抽奖奖品规则 */
         private String awardRuleValue;
     }
+
 }

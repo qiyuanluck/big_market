@@ -1,11 +1,14 @@
 package cn.project.domain.strategy.service.rule.chain;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @Author: qiyuan
  * @Date: 2024/12/09 15:41
  * @Description: 抽奖策略责任链，判断走那种抽奖策略。如；默认抽象、权重抽奖、黑名单抽奖
  */
-public abstract class AbstractLogicChain implements ILogicChain{
+@Slf4j
+public abstract class AbstractLogicChain implements ILogicChain {
 
     private ILogicChain next;
 
@@ -21,4 +24,5 @@ public abstract class AbstractLogicChain implements ILogicChain{
     }
 
     protected abstract String ruleModel();
+
 }

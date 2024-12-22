@@ -14,7 +14,6 @@ import java.util.Map;
  * @Date: 2024/12/09 16:34
  * @Description: 工厂
  */
-@Slf4j
 @Service
 public class DefaultChainFactory {
 

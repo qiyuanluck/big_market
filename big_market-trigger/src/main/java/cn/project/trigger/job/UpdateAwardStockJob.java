@@ -32,4 +32,6 @@ public class UpdateAwardStockJob {
             log.error("定时任务，更新奖品消耗库存失败", e);
         }
     }
+
 }
+

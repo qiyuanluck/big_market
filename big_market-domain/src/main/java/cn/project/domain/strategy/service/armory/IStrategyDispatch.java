@@ -6,7 +6,6 @@ package cn.project.domain.strategy.service.armory;
  * @Description: 策略抽奖调度
  */
 public interface IStrategyDispatch {
-
     /**
      * 获取抽奖策略装配的随机结果
      *

@@ -12,4 +12,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface IRuleTreeDao {
 
     RuleTree queryRuleTreeByTreeId(String treeId);
+
 }

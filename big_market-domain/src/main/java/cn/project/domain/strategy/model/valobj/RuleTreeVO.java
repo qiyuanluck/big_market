@@ -26,6 +26,7 @@ public class RuleTreeVO {
     private String treeDesc;
     /** 规则根节点 */
     private String treeRootRuleNode;
+
     /** 规则节点 */
     private Map<String, RuleTreeNodeVO> treeNodeMap;
 

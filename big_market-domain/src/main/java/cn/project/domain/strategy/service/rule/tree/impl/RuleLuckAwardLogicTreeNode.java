@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component("rule_luck_award")
-public class RuleLuckAwardLogicTreeNode  implements ILogicTreeNode {
+public class RuleLuckAwardLogicTreeNode implements ILogicTreeNode {
+
     @Override
     public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId, String ruleValue) {
         log.info("规则过滤-兜底奖品 userId:{} strategyId:{} awardId:{} ruleValue:{}", userId, strategyId, awardId, ruleValue);
@@ -36,4 +37,5 @@ public class RuleLuckAwardLogicTreeNode  implements ILogicTreeNode {
                         .build())
                 .build();
     }
+
 }
