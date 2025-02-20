@@ -2,6 +2,8 @@ package cn.project.infrastructure.persistent.redis;
 
 import org.redisson.api.*;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @Author: qiyuan
  * @Date: 2024/11/26 10:32
@@ -251,4 +253,6 @@ public interface IRedisService {
     Boolean setNx(String key);
 
     void setAtomicLong(String key, Integer value);
+
+    Boolean setNx(String key, long expired, TimeUnit timeUnit);
 }
