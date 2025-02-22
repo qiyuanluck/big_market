@@ -1,4 +1,4 @@
-package cn.project.domain.activity.service.rule;
+package cn.project.domain.activity.service.quota.rule;
 
 /**
  * @Author: qiyuan

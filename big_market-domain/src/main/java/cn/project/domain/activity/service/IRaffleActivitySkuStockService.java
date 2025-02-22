@@ -5,9 +5,9 @@ import cn.project.domain.activity.model.valobj.ActivitySkuStockKeyVO;
 /**
  * @Author: qiyuan
  * @Date: 2025/02/20 15:18
- * @Description:
+ * @Description: 抽奖活动SKU库存服务
  */
-public interface ISkuStock {
+public interface IRaffleActivitySkuStockService {
     /**
      * 获取活动sku库存消耗队列
      *
