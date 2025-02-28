@@ -8,13 +8,6 @@ import cn.project.domain.activity.model.entity.SkuRechargeEntity;
  * @Description: 抽奖活动订单接口
  */
 public interface IRaffleActivityAccountQuotaService {
-//    /**
-//     * 以sku创建抽奖活动订单，获得参与抽奖资格（可消耗的次数）
-//     *
-//     * @param activityShopCartEntity 活动sku实体，通过sku领取活动。
-//     * @return 活动参与记录实体
-//     */
-//    ActivityOrderEntity createRaffleActivityOrder(ActivityShopCartEntity activityShopCartEntity);
     /**
      * 创建 sku 账户充值订单，给用户增加抽奖次数
      * <p>
@@ -25,4 +18,13 @@ public interface IRaffleActivityAccountQuotaService {
      * @return 活动ID
      */
     String createOrder(SkuRechargeEntity skuRechargeEntity);
+
+    /**
+     * 查询活动账户 - 日，参与次数
+     *
+     * @param activityId 活动ID
+     * @param userId     用户ID
+     * @return 参与次数
+     */
+    Integer queryRaffleActivityAccountDayPartakeCount(Long activityId, String userId);
 }

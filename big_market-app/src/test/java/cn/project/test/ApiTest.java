@@ -1,6 +1,8 @@
 package cn.project.test;
 
 import cn.project.infrastructure.persistent.redis.IRedisService;
+import cn.project.trigger.api.dto.RaffleAwardListRequestDTO;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,23 +17,23 @@ import javax.annotation.Resource;
 @SpringBootTest
 public class ApiTest {
 
-    @Resource
-    private IRedisService redisService;
-
     @Test
     public void test() {
-        RMap<Object, Object> map = redisService.getMap("strategy_id_100001");
-        map.put(1,101);
-        map.put(2,101);
-        map.put(3,101);
-        map.put(4,102);
-        map.put(5,102);
-        map.put(6,101);
-        map.put(7,103);
-        map.put(8,104);
-        map.put(9,105);
-        log.info("测试结果: {}",redisService.getFromMap("strategy_id_100001",1).toString());
-        log.info("测试完成");
+        RaffleAwardListRequestDTO requestDTO = new RaffleAwardListRequestDTO();
+        requestDTO.setUserId("xiaofuge");
+        requestDTO.setActivityId(100301L);
+        log.info(JSON.toJSONString(requestDTO));
     }
+
+    private double convert(double min){
+        double current = min;
+        double max = 1;
+        while (current < 1){
+            current = current * 10;
+            max = max * 10;
+        }
+        return max;
+    }
+
 
 }

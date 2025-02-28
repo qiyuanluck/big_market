@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 public class StrategyAwardEntity {
+
     /** 抽奖策略ID */
     private Long strategyId;
     /** 抽奖奖品ID - 内部流转使用 */
@@ -33,4 +34,6 @@ public class StrategyAwardEntity {
     private BigDecimal awardRate;
     /** 排序 */
     private Integer sort;
+    /** 规则模型，rule配置的模型同步到此表，便于使用 */
+    private String ruleModels;
 }

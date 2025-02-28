@@ -1,16 +1,13 @@
 package cn.project.domain.strategy.service.raffle;
 
-import cn.project.domain.strategy.model.entity.RaffleFactorEntity;
-import cn.project.domain.strategy.model.entity.RuleActionEntity;
-import cn.project.domain.strategy.model.entity.RuleMatterEntity;
 import cn.project.domain.strategy.model.entity.StrategyAwardEntity;
-import cn.project.domain.strategy.model.valobj.RuleLogicCheckTypeVO;
 import cn.project.domain.strategy.model.valobj.RuleTreeVO;
 import cn.project.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 import cn.project.domain.strategy.model.valobj.StrategyAwardStockKeyVO;
 import cn.project.domain.strategy.repository.IStrategyRepository;
 import cn.project.domain.strategy.service.AbstractRaffleStrategy;
 import cn.project.domain.strategy.service.IRaffleAward;
+import cn.project.domain.strategy.service.IRaffleRule;
 import cn.project.domain.strategy.service.IRaffleStock;
 import cn.project.domain.strategy.service.armory.IStrategyDispatch;
 import cn.project.domain.strategy.service.rule.chain.ILogicChain;
@@ -18,14 +15,11 @@ import cn.project.domain.strategy.service.rule.chain.factory.DefaultChainFactory
 import cn.project.domain.strategy.service.rule.tree.factory.DefaultTreeFactory;
 import cn.project.domain.strategy.service.rule.tree.factory.engine.IDecisionTreeEngine;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Author: qiyuan
@@ -34,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class DefaultRaffleStrategy extends AbstractRaffleStrategy implements IRaffleStock, IRaffleAward {
+public class DefaultRaffleStrategy extends AbstractRaffleStrategy implements IRaffleStock, IRaffleAward, IRaffleRule {
 
     public DefaultRaffleStrategy(IStrategyRepository repository, IStrategyDispatch strategyDispatch, DefaultChainFactory defaultChainFactory, DefaultTreeFactory defaultTreeFactory) {
         super(repository, strategyDispatch, defaultChainFactory, defaultTreeFactory);
@@ -48,6 +42,11 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy implements IRa
 
     @Override
     public DefaultTreeFactory.StrategyAwardVO raffleLogicTree(String userId, Long strategyId, Integer awardId) {
+        return raffleLogicTree(userId, strategyId, awardId, null);
+    }
+
+    @Override
+    public DefaultTreeFactory.StrategyAwardVO raffleLogicTree(String userId, Long strategyId, Integer awardId, Date endDateTime) {
         StrategyAwardRuleModelVO strategyAwardRuleModelVO = repository.queryStrategyAwardRuleModelVO(strategyId, awardId);
         if (null == strategyAwardRuleModelVO) {
             return DefaultTreeFactory.StrategyAwardVO.builder().awardId(awardId).build();
@@ -57,7 +56,7 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy implements IRa
             throw new RuntimeException("存在抽奖策略配置的规则模型 Key，未在库表 rule_tree、rule_tree_node、rule_tree_line 配置对应的规则树信息 " + strategyAwardRuleModelVO.getRuleModels());
         }
         IDecisionTreeEngine treeEngine = defaultTreeFactory.openLogicTree(ruleTreeVO);
-        return treeEngine.process(userId, strategyId, awardId);
+        return treeEngine.process(userId, strategyId, awardId, endDateTime);
     }
 
     @Override
@@ -73,6 +72,17 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy implements IRa
     @Override
     public List<StrategyAwardEntity> queryRaffleStrategyAwardList(Long strategyId) {
         return repository.queryStrategyAwardList(strategyId);
+    }
+
+    @Override
+    public List<StrategyAwardEntity> queryRaffleStrategyAwardListByActivityId(Long activityId) {
+        Long strategyId = repository.queryStrategyIdByActivityId(activityId);
+        return queryRaffleStrategyAwardList(strategyId);
+    }
+
+    @Override
+    public Map<String, Integer> queryAwardRuleLockCount(String[] treeIds) {
+        return repository.queryAwardRuleLockCount(treeIds);
     }
 
 }
