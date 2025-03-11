@@ -4,7 +4,7 @@ import cn.project.domain.activity.service.armory.IActivityArmory;
 import cn.project.domain.rebate.model.entity.BehaviorEntity;
 import cn.project.domain.rebate.model.valobj.BehaviorTypeVO;
 import cn.project.domain.rebate.service.IBehaviorRebateService;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,13 +40,13 @@ public class BehaviorRebateServiceTest {
     @Test
     public void test_createOrder() throws InterruptedException {
         BehaviorEntity behaviorEntity = new BehaviorEntity();
-        behaviorEntity.setUserId("xiaofuge");
+        behaviorEntity.setUserId("qiyuan");
         behaviorEntity.setBehaviorTypeVO(BehaviorTypeVO.SIGN);
         // 重复的 OutBusinessNo 会报错唯一索引冲突，这也是保证幂等的手段，确保不会多记账
-        behaviorEntity.setOutBusinessNo("2024042906");
+        behaviorEntity.setOutBusinessNo("20240503");
 
         List<String> orderIds = behaviorRebateService.createOrder(behaviorEntity);
-        log.info("请求参数：{}", JSON.toJSONString(behaviorEntity));
+        log.info("请求参数：{}", com.alibaba.fastjson2.JSON.toJSONString(behaviorEntity));
         log.info("测试结果：{}", JSON.toJSONString(orderIds));
 
         new CountDownLatch(1).await();

@@ -6,6 +6,8 @@ import cn.project.domain.strategy.service.rule.chain.AbstractLogicChain;
 import cn.project.domain.strategy.service.rule.chain.factory.DefaultChainFactory;
 import cn.project.types.common.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,6 +20,7 @@ import java.util.*;
  */
 @Slf4j
 @Component("rule_weight")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RuleWeightLogicChain extends AbstractLogicChain {
 
     @Resource
@@ -25,9 +28,6 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
 
     @Resource
     protected IStrategyDispatch strategyDispatch;
-
-    // 根据用户ID查询用户抽奖消耗的积分值，本章节我们先写死为固定的值。后续需要从数据库中查询。
-    public Long userScore = 0L;
 
     /**
      * 权重责任链过滤；
@@ -52,6 +52,9 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
         Collections.sort(analyticalSortedKeys);
 
         // 3. 找出最小符合的值，也就是【4500 积分，能找到 4000:102,103,104,105】、【5000 积分，能找到 5000:102,103,104,105,106,107】
+        /* 找到最后一个符合的值[如用户传了一个 5900 应该返回正确结果为 5000]，如果使用 Lambda findFirst 需要注意使用 sorted 反转结果
+         */
+        Integer userScore = repository.queryActivityAccountTotalUseCount(userId, strategyId);
         Long nextValue = analyticalSortedKeys.stream()
                 .sorted(Comparator.reverseOrder())
                 .filter(analyticalSortedKeyValue -> userScore >= analyticalSortedKeyValue)
@@ -97,3 +100,4 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
     }
 
 }
+
