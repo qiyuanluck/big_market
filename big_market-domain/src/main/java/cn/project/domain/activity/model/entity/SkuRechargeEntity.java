@@ -1,7 +1,10 @@
 package cn.project.domain.activity.model.entity;
 
 import cn.project.domain.activity.model.valobj.OrderTradeTypeVO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @Author: qiyuan
@@ -9,6 +12,9 @@ import lombok.Data;
  * @Description: 活动商品充值实体对象
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SkuRechargeEntity {
 
     /** 用户ID */

@@ -1,6 +1,7 @@
 package cn.project.domain.credit.repository;
 
 import cn.project.domain.credit.model.aggregate.TradeAggregate;
+import cn.project.domain.credit.model.entity.CreditAccountEntity;
 
 /**
  * @Author: qiyuan
@@ -10,5 +11,7 @@ import cn.project.domain.credit.model.aggregate.TradeAggregate;
 public interface ICreditRepository {
 
     void saveUserCreditTradeOrder(TradeAggregate tradeAggregate);
+
+    CreditAccountEntity queryUserCreditAccount(String userId);
 
 }
