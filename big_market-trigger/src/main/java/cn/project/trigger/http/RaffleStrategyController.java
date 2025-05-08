@@ -48,7 +48,6 @@ public class RaffleStrategyController implements IRaffleStrategyService {
 
     /**
      * 策略装配，将策略信息装配到缓存中
-     * <a href="http://localhost:8091/api/v1/raffle/strategy/strategy_armory">/api/v1/raffle/strategy/strategy_armory</a>
      *
      * @param strategyId 策略ID
      * @return 装配结果
@@ -77,10 +76,9 @@ public class RaffleStrategyController implements IRaffleStrategyService {
 
     /**
      * 查询奖品列表
-     * <a href="http://localhost:8091/api/v1/raffle/strategy/query_raffle_award_list">/api/v1/raffle/strategy/query_raffle_award_list</a>
      * 请求参数 raw json
      *
-     * @param request {"activityId":100301,"userId":"qiyuan"}
+     * @param request {"activityId":100301,"userId":"xiaofuge"}
      * @return 奖品列表
      */
     @RequestMapping(value = "query_raffle_award_list", method = RequestMethod.POST)
@@ -135,19 +133,11 @@ public class RaffleStrategyController implements IRaffleStrategyService {
     }
 
     /**
-     * &#x67E5;&#x8BE2;&#x62BD;&#x5956;&#x7B56;&#x7565;&#x6743;&#x91CD;&#x89C4;&#x5219;&#x914D;&#x7F6E;
-     * curl --request POST \
-     * --url http://localhost:8091/api/v1/raffle/strategy/query_raffle_strategy_rule_weight \
-     * --header 'content-type: application/json' \
-     * --data '{
-     * "userId":"qiyuan",
-     * "activityId": 100301
-     * }'
+     * 查询策略抽奖权重规则
      */
-
     @RequestMapping(value = "query_raffle_strategy_rule_weight", method = RequestMethod.POST)
     @Override
-    public Response<List<RaffleStrategyRuleWeightResponseDTO>> queryRaffleStrategyRuleWeight(RaffleStrategyRuleWeightRequestDTO request) {
+    public Response<List<RaffleStrategyRuleWeightResponseDTO>> queryRaffleStrategyRuleWeight(@RequestBody RaffleStrategyRuleWeightRequestDTO request) {
         try {
             log.info("查询抽奖策略权重规则配置开始 userId:{} activityId：{}", request.getUserId(), request.getActivityId());
             // 1. 参数校验
@@ -195,10 +185,6 @@ public class RaffleStrategyController implements IRaffleStrategyService {
 
     /**
      * 随机抽奖接口
-     * <a href="http://localhost:8091/api/v1/raffle/strategy/random_raffle">/api/v1/raffle/random_raffle</a>
-     *
-     * @param requestDTO 请求参数 {"strategyId":1000001}
-     * @return 抽奖结果
      */
     @RequestMapping(value = "random_raffle", method = RequestMethod.POST)
     @Override
