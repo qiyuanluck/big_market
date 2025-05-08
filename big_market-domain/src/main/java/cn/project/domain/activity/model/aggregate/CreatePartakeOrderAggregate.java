@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 /**
  * @Author: qiyuan
  * @Date: 2025/02/22 15:49
- * @Description:
+ * @Description: 参与活动订单
  */
 @Data
 @Builder
