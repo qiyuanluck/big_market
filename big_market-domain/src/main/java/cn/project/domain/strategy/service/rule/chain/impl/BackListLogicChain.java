@@ -5,6 +5,8 @@ import cn.project.domain.strategy.service.rule.chain.AbstractLogicChain;
 import cn.project.domain.strategy.service.rule.chain.factory.DefaultChainFactory;
 import cn.project.types.common.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -16,6 +18,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Component("rule_blacklist")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class BackListLogicChain extends AbstractLogicChain {
 
     @Resource
@@ -38,6 +41,8 @@ public class BackListLogicChain extends AbstractLogicChain {
                 return DefaultChainFactory.StrategyAwardVO.builder()
                         .awardId(awardId)
                         .logicModel(ruleModel())
+                        // 写入默认配置黑名单奖品值 0.01 ~ 1 积分，也可以配置到数据库表中
+                        .awardRuleValue("0.01,1")
                         .build();
             }
         }
