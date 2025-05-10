@@ -1,7 +1,7 @@
 package cn.project.test.infrastructure;
 
-import cn.project.infrastructure.persistent.dao.IRaffleActivityOrderDao;
-import cn.project.infrastructure.persistent.po.RaffleActivityOrder;
+import cn.project.infrastructure.dao.IRaffleActivityOrderDao;
+import cn.project.infrastructure.dao.po.RaffleActivityOrder;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;

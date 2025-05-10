@@ -1,5 +1,5 @@
 server:
-  port: 8091
+  port: 80
   tomcat:
     threads:
       max: 200        # 设定处理客户请求的线程的最大数目，决定了服务器可以同时响应客户请求的数,默认200
@@ -133,9 +133,16 @@ dubbo:
     port: -1
   scan:
     base-packages: cn.project.trigger.api
-#  metadata-report:
-#    address: nacos://47.122.2.56:8848
-#    report-metadata: false
+
+# 外部接口调用配置
+gateway:
+  config:
+    # 状态；true = 开启、false 关闭
+    enable: true
+    apiHost: http://localhost:8091
+    # big-market 大营销接口调用配置
+    big-market-appId: big-market
+    big-market-appToken: 6ec604541f8b1ce4a
 
 
 

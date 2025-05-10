@@ -1,6 +1,6 @@
 package cn.project.trigger.listener;
 
-import cn.project.domain.award.event.SendAwardMessageEvent;
+import cn.project.domain.award.adapter.event.SendAwardMessageEvent;
 import cn.project.domain.award.model.entity.DistributeAwardEntity;
 import cn.project.domain.award.service.IAwardService;
 import cn.project.types.event.BaseEvent;
@@ -48,6 +48,7 @@ public class SendAwardCustomer {
             log.info("监听用户奖品发送消息，发奖完成 topic: {} message: {}", topic, message);
         } catch (Exception e) {
             log.error("监听用户奖品发送消息，消费失败 topic: {} message: {}", topic, message);
+//            throw e;
         }
     }
 

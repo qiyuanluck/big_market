@@ -6,7 +6,7 @@ import cn.project.domain.award.model.entity.DistributeAwardEntity;
 import cn.project.domain.award.model.entity.UserAwardRecordEntity;
 import cn.project.domain.award.model.entity.UserCreditAwardEntity;
 import cn.project.domain.award.model.valobj.AwardStateVO;
-import cn.project.domain.award.repository.IAwardRepository;
+import cn.project.domain.award.adapter.repository.IAwardRepository;
 import cn.project.domain.award.service.distribute.IDistributeAward;
 import cn.project.types.common.Constants;
 import org.apache.commons.lang3.StringUtils;

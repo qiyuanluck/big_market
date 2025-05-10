@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.project.infrastructure.persistent.dao.IUserCreditAccountDao">
+<mapper namespace="cn.project.infrastructure.dao.IUserCreditAccountDao">
 
-    <resultMap id="dataMap" type="cn.project.infrastructure.persistent.po.UserCreditAccount">
+    <resultMap id="dataMap" type="cn.project.infrastructure.dao.po.UserCreditAccount">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
         <result column="total_amount" property="totalAmount"/>
@@ -12,14 +12,14 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
-    <update id="updateAddAmount" parameterType="cn.project.infrastructure.persistent.po.UserCreditAccount">
+    <update id="updateAddAmount" parameterType="cn.project.infrastructure.dao.po.UserCreditAccount">
         update user_credit_account set
         total_amount = total_amount + #{totalAmount},
         available_amount = available_amount + #{availableAmount}
         where user_id = #{userId}
     </update>
 
-    <insert id="insert" parameterType="cn.project.infrastructure.persistent.po.UserCreditAccount">
+    <insert id="insert" parameterType="cn.project.infrastructure.dao.po.UserCreditAccount">
         insert into user_credit_account(
         user_id, total_amount, available_amount, account_status, create_time, update_time
         ) values (
@@ -27,7 +27,7 @@
         )
     </insert>
 
-    <select id="queryUserCreditAccount" parameterType="cn.project.infrastructure.persistent.po.UserCreditAccount" resultMap="dataMap">
+    <select id="queryUserCreditAccount" parameterType="cn.project.infrastructure.dao.po.UserCreditAccount" resultMap="dataMap">
         select user_id, total_amount, available_amount, account_status from user_credit_account
         where user_id = #{userId}
     </select>

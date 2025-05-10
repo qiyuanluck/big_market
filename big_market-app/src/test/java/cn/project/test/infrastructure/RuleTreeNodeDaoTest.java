@@ -1,7 +1,7 @@
 package cn.project.test.infrastructure;
 
-import cn.project.infrastructure.persistent.dao.IRuleTreeNodeDao;
-import cn.project.infrastructure.persistent.po.RuleTreeNode;
+import cn.project.infrastructure.dao.IRuleTreeNodeDao;
+import cn.project.infrastructure.dao.po.RuleTreeNode;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;

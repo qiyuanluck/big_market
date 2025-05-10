@@ -1,18 +1,17 @@
 package cn.project.domain.award.service;
 
-import cn.project.domain.award.event.SendAwardMessageEvent;
+import cn.project.domain.award.adapter.event.SendAwardMessageEvent;
 import cn.project.domain.award.model.aggregate.UserAwardRecordAggregate;
 import cn.project.domain.award.model.entity.DistributeAwardEntity;
 import cn.project.domain.award.model.entity.TaskEntity;
 import cn.project.domain.award.model.entity.UserAwardRecordEntity;
 import cn.project.domain.award.model.valobj.TaskStateVO;
-import cn.project.domain.award.repository.IAwardRepository;
+import cn.project.domain.award.adapter.repository.IAwardRepository;
 import cn.project.domain.award.service.distribute.IDistributeAward;
 import cn.project.types.event.BaseEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -65,7 +64,7 @@ public class AwardService implements IAwardService {
     }
 
     @Override
-    public void distributeAward(DistributeAwardEntity distributeAwardEntity) {
+    public void distributeAward(DistributeAwardEntity distributeAwardEntity) throws Exception {
         // 奖品Key
         String awardKey = awardRepository.queryAwardKey(distributeAwardEntity.getAwardId());
         if (null == awardKey) {
