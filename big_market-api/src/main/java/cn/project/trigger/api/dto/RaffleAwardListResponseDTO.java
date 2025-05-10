@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Author: qiyuan
  * @Date: 2024/12/22 14:07
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RaffleAwardListResponseDTO {
+public class RaffleAwardListResponseDTO implements Serializable {
 
     // 奖品ID
     private Integer awardId;
@@ -30,6 +32,5 @@ public class RaffleAwardListResponseDTO {
     private Boolean isAwardUnlock;
     // 等待解锁次数 - 规定的抽奖N次解锁减去用户已经抽奖次数
     private Integer waitUnLockCount;
-
 
 }
