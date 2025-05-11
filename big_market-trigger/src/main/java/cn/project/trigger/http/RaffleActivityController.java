@@ -6,6 +6,7 @@ import cn.project.domain.activity.service.IRaffleActivityAccountQuotaService;
 import cn.project.domain.activity.service.IRaffleActivityPartakeService;
 import cn.project.domain.activity.service.IRaffleActivitySkuProductService;
 import cn.project.domain.activity.service.armory.IActivityArmory;
+import cn.project.domain.auth.service.IAuthService;
 import cn.project.domain.award.model.entity.UserAwardRecordEntity;
 import cn.project.domain.award.model.valobj.AwardStateVO;
 import cn.project.domain.award.service.IAwardService;
@@ -73,6 +74,12 @@ public class RaffleActivityController implements IRaffleActivityService {
     private IBehaviorRebateService behaviorRebateService;
     @Resource
     private ICreditAdjustService creditAdjustService;
+    @Resource
+    private IAuthService authService;
+
+//    // dcc 统一配置中心动态配置降级开关
+//    @DCCValue("degradeSwitch:close")
+//    private String degradeSwitch;
 
     /**
      * 活动装配 - 数据预热 | 把活动配置的对应的 sku 一起装配
@@ -85,6 +92,10 @@ public class RaffleActivityController implements IRaffleActivityService {
     public Response<Boolean> armory(@RequestParam Long activityId) {
         try {
             log.info("活动装配，数据预热，开始 activityId:{}", activityId);
+            // 0. 参数校验
+            if (null == activityId) {
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+            }
             // 1. 活动装配
             activityArmory.assembleActivitySkuByActivityId(activityId);
             // 2. 策略装配
@@ -105,6 +116,37 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    @RequestMapping(value = "draw_by_token", method = RequestMethod.POST)
+    @Override
+    public Response<ActivityDrawResponseDTO> draw(@RequestHeader("Authorization") String token, @RequestBody ActivityDrawRequestDTO request) {
+        try {
+            // 1. Token 校验
+            boolean success = authService.checkToken(token);
+            if (!success) {
+                return Response.<ActivityDrawResponseDTO>builder()
+                        .code(ResponseCode.Login.TOKEN_ERROR.getCode())
+                        .info(ResponseCode.Login.TOKEN_ERROR.getInfo())
+                        .build();
+            }
+
+            // 2. Token 解析
+            String openid = authService.openid(token);
+            assert null != openid;
+
+            log.info("活动抽奖开始 - 解析用户ID userId:{}", openid);
+            request.setUserId(openid);
+
+            // 3. 执行抽奖
+            return draw(request);
+        } catch (Exception e) {
+            log.error("活动抽奖失败 userId:{} activityId:{}", request.getUserId(), request.getActivityId(), e);
+            return Response.<ActivityDrawResponseDTO>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
     /**
      * 抽奖接口
      *
@@ -116,23 +158,28 @@ public class RaffleActivityController implements IRaffleActivityService {
     public Response<ActivityDrawResponseDTO> draw(@RequestBody ActivityDrawRequestDTO request) {
         try {
             log.info("活动抽奖开始 userId:{} activityId:{}", request.getUserId(), request.getActivityId());
-            // 1. 参数校验
+            // 0. 参数校验
             if (StringUtils.isBlank(request.getUserId()) || null == request.getActivityId()) {
                 throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
             }
 
-            // 2. 参与活动 - 创建参与记录订单
+            // 2. 参数校验
+            if (StringUtils.isBlank(request.getUserId()) || null == request.getActivityId()) {
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+            }
+
+            // 3. 参与活动 - 创建参与记录订单
             UserRaffleOrderEntity orderEntity = raffleActivityPartakeService.createOrder(request.getUserId(), request.getActivityId());
             log.info("活动抽奖，创建订单 userId:{} activityId:{} orderId:{}", request.getUserId(), request.getActivityId(), orderEntity.getOrderId());
 
-            // 3. 抽奖策略 - 执行抽奖
+            // 4. 抽奖策略 - 执行抽奖
             RaffleAwardEntity raffleAwardEntity = raffleStrategy.performRaffle(RaffleFactorEntity.builder()
                     .userId(orderEntity.getUserId())
                     .strategyId(orderEntity.getStrategyId())
                     .endDateTime(orderEntity.getEndDateTime())
                     .build());
 
-            // 4. 存放结果 - 写入中奖记录
+            // 5. 存放结果 - 写入中奖记录
             UserAwardRecordEntity userAwardRecord = UserAwardRecordEntity.builder()
                     .userId(orderEntity.getUserId())
                     .activityId(orderEntity.getActivityId())
@@ -147,7 +194,7 @@ public class RaffleActivityController implements IRaffleActivityService {
 
             awardService.saveUserAwardRecord(userAwardRecord);
 
-            // 5. 返回结果
+            // 6. 返回结果
             return Response.<ActivityDrawResponseDTO>builder()
                     .code(ResponseCode.SUCCESS.getCode())
                     .info(ResponseCode.SUCCESS.getInfo())
@@ -172,6 +219,50 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    public Response<ActivityDrawResponseDTO> drawRateLimiterError(@RequestBody ActivityDrawRequestDTO request) {
+        log.info("活动抽奖限流 userId:{} activityId:{}", request.getUserId(), request.getActivityId());
+        return Response.<ActivityDrawResponseDTO>builder()
+                .code(ResponseCode.RATE_LIMITER.getCode())
+                .info(ResponseCode.RATE_LIMITER.getInfo())
+                .build();
+    }
+
+    public Response<ActivityDrawResponseDTO> drawHystrixError(@RequestBody ActivityDrawRequestDTO request) {
+        log.info("活动抽奖熔断 userId:{} activityId:{}", request.getUserId(), request.getActivityId());
+        return Response.<ActivityDrawResponseDTO>builder()
+                .code(ResponseCode.HYSTRIX.getCode())
+                .info(ResponseCode.HYSTRIX.getInfo())
+                .build();
+    }
+
+    @RequestMapping(value = "calendar_sign_rebate_by_token", method = RequestMethod.POST)
+    @Override
+    public Response<Boolean> calendarSignRebateByToken(@RequestHeader("Authorization") String token) {
+        try {
+            // 1. Token 校验
+            boolean success = authService.checkToken(token);
+            if (!success) {
+                return Response.<Boolean>builder()
+                        .code(ResponseCode.Login.TOKEN_ERROR.getCode())
+                        .info(ResponseCode.Login.TOKEN_ERROR.getInfo())
+                        .build();
+            }
+
+            // 2. Token 解析
+            String openid = authService.openid(token);
+            assert null != openid;
+            log.info("执行签到开始 - 解析用户ID userId:{}", openid);
+            // 3. 执行签到
+            return calendarSignRebate(openid);
+        } catch (Exception e) {
+            log.error("执行签到失败", e);
+            return Response.<Boolean>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
     /**
      * 日历签到返利接口
      *
@@ -183,6 +274,9 @@ public class RaffleActivityController implements IRaffleActivityService {
     public Response<Boolean> calendarSignRebate(@RequestParam String userId) {
         try {
             log.info("日历签到返利开始 userId:{}", userId);
+            if (StringUtils.isBlank(userId)) {
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+            }
             BehaviorEntity behaviorEntity = new BehaviorEntity();
             behaviorEntity.setUserId(userId);
             behaviorEntity.setBehaviorTypeVO(BehaviorTypeVO.SIGN);
@@ -210,6 +304,34 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    @RequestMapping(value = "is_calendar_sign_rebate_by_token", method = RequestMethod.POST)
+    @Override
+    public Response<Boolean> isCalendarSignRebateByToken(@RequestHeader("Authorization") String token) {
+        try {
+            // 1. Token 校验
+            boolean success = authService.checkToken(token);
+            if (!success) {
+                return Response.<Boolean>builder()
+                        .code(ResponseCode.Login.TOKEN_ERROR.getCode())
+                        .info(ResponseCode.Login.TOKEN_ERROR.getInfo())
+                        .build();
+            }
+
+            // 2. Token 解析
+            String openid = authService.openid(token);
+            assert null != openid;
+            log.info("执行判断签到开始 - 解析用户ID userId:{}", openid);
+            // 3. 执行签到
+            return isCalendarSignRebate(openid);
+        } catch (Exception e) {
+            log.error("执行判断签到失败", e);
+            return Response.<Boolean>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
     /**
      * 判断是否签到接口
      */
@@ -218,6 +340,9 @@ public class RaffleActivityController implements IRaffleActivityService {
     public Response<Boolean> isCalendarSignRebate(@RequestParam String userId) {
         try {
             log.info("查询用户是否完成日历签到返利开始 userId:{}", userId);
+            if (StringUtils.isBlank(userId)) {
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+            }
             String outBusinessNo = dateFormatDay.format(new Date());
             List<BehaviorRebateOrderEntity> behaviorRebateOrderEntities = behaviorRebateService.queryOrderByOutBusinessNo(userId, outBusinessNo);
             log.info("查询用户是否完成日历签到返利完成 userId:{} orders.size:{}", userId, behaviorRebateOrderEntities.size());
@@ -232,6 +357,36 @@ public class RaffleActivityController implements IRaffleActivityService {
                     .code(ResponseCode.UN_ERROR.getCode())
                     .info(ResponseCode.UN_ERROR.getInfo())
                     .data(false)
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "query_user_activity_account_by_token", method = RequestMethod.POST)
+    @Override
+    public Response<UserActivityAccountResponseDTO> queryUserActivityAccount(@RequestHeader("Authorization") String token, @RequestBody UserActivityAccountRequestDTO request) {
+        try {
+            // 1. Token 校验
+            boolean success = authService.checkToken(token);
+            if (!success) {
+                return Response.<UserActivityAccountResponseDTO>builder()
+                        .code(ResponseCode.Login.TOKEN_ERROR.getCode())
+                        .info(ResponseCode.Login.TOKEN_ERROR.getInfo())
+                        .build();
+            }
+
+            // 2. Token 解析
+            String openid = authService.openid(token);
+            assert null != openid;
+            log.info("执行判断签到开始 - 解析用户ID userId:{}", openid);
+            request.setUserId(openid);
+
+            // 3. 执行签到
+            return queryUserActivityAccount(request);
+        } catch (Exception e) {
+            log.error("执行判断签到失败", e);
+            return Response.<UserActivityAccountResponseDTO>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
                     .build();
         }
     }
@@ -317,11 +472,43 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    @RequestMapping(value = "query_user_credit_account_by_token", method = RequestMethod.POST)
+    @Override
+    public Response<BigDecimal> queryUserCreditAccountByToken(@RequestHeader("Authorization") String token) {
+        try {
+            // 1. Token 校验
+            boolean success = authService.checkToken(token);
+            if (!success) {
+                return Response.<BigDecimal>builder()
+                        .code(ResponseCode.Login.TOKEN_ERROR.getCode())
+                        .info(ResponseCode.Login.TOKEN_ERROR.getInfo())
+                        .build();
+            }
+
+            // 2. Token 解析
+            String openid = authService.openid(token);
+            assert null != openid;
+            log.info("查询用户积分值开始 - 解析用户ID userId:{}", openid);
+
+            // 3. 执行签到
+            return queryUserCreditAccount(openid);
+        } catch (Exception e) {
+            log.error("查询用户积分值失败", e);
+            return Response.<BigDecimal>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
     @RequestMapping(value = "query_user_credit_account", method = RequestMethod.POST)
     @Override
     public Response<BigDecimal> queryUserCreditAccount(String userId) {
         try {
             log.info("查询用户积分值开始 userId:{}", userId);
+            if (StringUtils.isBlank(userId)) {
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+            }
             CreditAccountEntity creditAccountEntity = creditAdjustService.queryUserCreditAccount(userId);
             log.info("查询用户积分值完成 userId:{} adjustAmount:{}", userId, creditAccountEntity.getAdjustAmount());
             return Response.<BigDecimal>builder()
@@ -338,12 +525,46 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    @RequestMapping(value = "credit_pay_exchange_sku_by_token", method = RequestMethod.POST)
+    @Override
+    public Response<Boolean> creditPayExchangeSku(@RequestHeader("Authorization") String token, @RequestBody SkuProductShopCartRequestDTO request) {
+        try {
+            // 1. Token 校验
+            boolean success = authService.checkToken(token);
+            if (!success) {
+                return Response.<Boolean>builder()
+                        .code(ResponseCode.Login.TOKEN_ERROR.getCode())
+                        .info(ResponseCode.Login.TOKEN_ERROR.getInfo())
+                        .build();
+            }
+
+            // 2. Token 解析
+            String openid = authService.openid(token);
+            assert null != openid;
+            log.info("查询用户积分值开始 - 解析用户ID userId:{}", openid);
+            request.setUserId(openid);
+
+            // 3. 执行签到
+            return creditPayExchangeSku(request);
+        } catch (Exception e) {
+            log.error("查询用户积分值失败", e);
+            return Response.<Boolean>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
 
     @RequestMapping(value = "credit_pay_exchange_sku", method = RequestMethod.POST)
     @Override
     public Response<Boolean> creditPayExchangeSku(@RequestBody SkuProductShopCartRequestDTO request) {
         try {
             log.info("积分兑换商品开始 userId:{} sku:{}", request.getUserId(), request.getSku());
+            // 0. 参数校验
+            if (StringUtils.isBlank(request.getUserId())) {
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+            }
             // 1. 创建兑换商品sku订单，outBusinessNo 每次创建出一个单号。
             UnpaidActivityOrderEntity unpaidActivityOrder = raffleActivityAccountQuotaService.createOrder(SkuRechargeEntity.builder()
                     .userId(request.getUserId())
