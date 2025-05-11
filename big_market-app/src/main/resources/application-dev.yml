@@ -126,8 +126,6 @@ dubbo:
   registry:
     id: nacos-registry
     address: nacos://47.122.2.56:8848
-#    username: nacos
-#    password: nacos
   protocol:
     name: dubbo
     port: -1
