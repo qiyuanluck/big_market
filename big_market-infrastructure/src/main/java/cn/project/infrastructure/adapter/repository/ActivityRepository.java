@@ -1,14 +1,14 @@
 package cn.project.infrastructure.adapter.repository;
 
 import cn.bugstack.middleware.db.router.strategy.IDBRouterStrategy;
-import cn.project.domain.activity.event.ActivitySkuStockZeroMessageEvent;
+import cn.project.domain.activity.adapter.event.ActivitySkuStockZeroMessageEvent;
 import cn.project.domain.activity.model.aggregate.CreatePartakeOrderAggregate;
 import cn.project.domain.activity.model.aggregate.CreateQuotaOrderAggregate;
 import cn.project.domain.activity.model.entity.*;
 import cn.project.domain.activity.model.valobj.ActivitySkuStockKeyVO;
 import cn.project.domain.activity.model.valobj.ActivityStateVO;
 import cn.project.domain.activity.model.valobj.UserRaffleOrderStateVO;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.infrastructure.dao.*;
 import cn.project.infrastructure.dao.po.*;
 import cn.project.infrastructure.event.EventPublisher;
@@ -61,6 +61,8 @@ public class ActivityRepository implements IActivityRepository {
     private TransactionTemplate transactionTemplate;
     @Resource
     private IUserRaffleOrderDao userRaffleOrderDao;
+    @Resource
+    private IRaffleActivityStageDao raffleActivityStageDao;
     @Resource
     private IDBRouterStrategy dbRouter;
     @Resource
@@ -204,7 +206,9 @@ public class ActivityRepository implements IActivityRepository {
             });
         } finally {
             dbRouter.clear();
-            lock.unlock();
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
@@ -259,10 +263,7 @@ public class ActivityRepository implements IActivityRepository {
     @Override
     public boolean subtractionActivitySkuStock(Long sku, String cacheKey, Date endDateTime) {
         long surplus = redisService.decr(cacheKey);
-        if (surplus == 0) {
-            // 库存消耗没了以后，发送MQ消息，更新数据库库存
-            eventPublisher.publish(activitySkuStockZeroMessageEvent.topic(), activitySkuStockZeroMessageEvent.buildEventMessage(sku));
-        } else if (surplus < 0) {
+        if (surplus < 0) {
             // 库存小于0，恢复为0个
             redisService.setAtomicLong(cacheKey, 0);
             return false;
@@ -277,18 +278,25 @@ public class ActivityRepository implements IActivityRepository {
         if (!lock) {
             log.info("活动sku库存加锁失败 {}", lockKey);
         }
+
+        if (surplus == 0) {
+            // 库存消耗没了以后，发送MQ消息，更新数据库库存
+            eventPublisher.publish(activitySkuStockZeroMessageEvent.topic(), activitySkuStockZeroMessageEvent.buildEventMessage(sku));
+        }
+
         return lock;
     }
 
     @Override
     public void activitySkuStockConsumeSendQueue(ActivitySkuStockKeyVO activitySkuStockKeyVO) {
-        String cacheKey = Constants.RedisKey.ACTIVITY_SKU_COUNT_QUERY_KEY;
+        String cacheKey = Constants.RedisKey.ACTIVITY_SKU_COUNT_QUERY_KEY + Constants.UNDERLINE + activitySkuStockKeyVO.getSku();
         RBlockingQueue<ActivitySkuStockKeyVO> blockingQueue = redisService.getBlockingQueue(cacheKey);
         RDelayedQueue<ActivitySkuStockKeyVO> delayedQueue = redisService.getDelayedQueue(blockingQueue);
         delayedQueue.offer(activitySkuStockKeyVO, 3, TimeUnit.SECONDS);
     }
 
     @Override
+    @Deprecated
     public ActivitySkuStockKeyVO takeQueueValue() {
         String cacheKey = Constants.RedisKey.ACTIVITY_SKU_COUNT_QUERY_KEY;
         RBlockingQueue<ActivitySkuStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
@@ -296,8 +304,23 @@ public class ActivityRepository implements IActivityRepository {
     }
 
     @Override
+    public ActivitySkuStockKeyVO takeQueueValue(Long sku) {
+        String cacheKey = Constants.RedisKey.ACTIVITY_SKU_COUNT_QUERY_KEY + Constants.UNDERLINE + sku;
+        RBlockingQueue<ActivitySkuStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
+        return destinationQueue.poll();
+    }
+
+    @Deprecated
+    @Override
     public void clearQueueValue() {
         String cacheKey = Constants.RedisKey.ACTIVITY_SKU_COUNT_QUERY_KEY;
+        RBlockingQueue<ActivitySkuStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
+        destinationQueue.clear();
+    }
+
+    @Override
+    public void clearQueueValue(Long sku) {
+        String cacheKey = Constants.RedisKey.ACTIVITY_SKU_COUNT_QUERY_KEY + Constants.UNDERLINE + sku;
         RBlockingQueue<ActivitySkuStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
         destinationQueue.clear();
     }
@@ -310,6 +333,11 @@ public class ActivityRepository implements IActivityRepository {
     @Override
     public void clearActivitySkuStock(Long sku) {
         raffleActivitySkuDao.clearActivitySkuStock(sku);
+    }
+
+    @Override
+    public List<Long> querySkuList() {
+        return raffleActivitySkuDao.querySkuList();
     }
 
     @Override
@@ -614,8 +642,6 @@ public class ActivityRepository implements IActivityRepository {
     public void updateOrder(DeliveryOrderEntity deliveryOrderEntity) {
         RLock lock = redisService.getLock(Constants.RedisKey.ACTIVITY_ACCOUNT_UPDATE_LOCK + deliveryOrderEntity.getUserId() + Constants.UNDERLINE + deliveryOrderEntity.getOutBusinessNo());
         try {
-            lock.lock(3, TimeUnit.SECONDS);
-
             // 查询订单
             RaffleActivityOrder raffleActivityOrderReq = new RaffleActivityOrder();
             raffleActivityOrderReq.setUserId(deliveryOrderEntity.getUserId());
@@ -623,9 +649,10 @@ public class ActivityRepository implements IActivityRepository {
             RaffleActivityOrder raffleActivityOrderRes = raffleActivityOrderDao.queryRaffleActivityOrder(raffleActivityOrderReq);
 
             if (null == raffleActivityOrderRes) {
-                if (lock.isLocked()) lock.unlock();
                 return;
             }
+
+            lock.lock(3, TimeUnit.SECONDS);
 
             // 账户对象 - 总
             RaffleActivityAccount raffleActivityAccount = new RaffleActivityAccount();
@@ -685,7 +712,7 @@ public class ActivityRepository implements IActivityRepository {
             });
         } finally {
             dbRouter.clear();
-            if (lock.isLocked()) {
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
         }
@@ -744,6 +771,51 @@ public class ActivityRepository implements IActivityRepository {
         } finally {
             dbRouter.clear();
         }
+    }
+
+    @Override
+    public void appendStageActivity(String channel, String source, Long activityId) {
+        RaffleActivityStage raffleActivityStage = new RaffleActivityStage();
+        raffleActivityStage.setChannel(channel);
+        raffleActivityStage.setSource(source);
+        raffleActivityStage.setActivityId(activityId);
+        raffleActivityStageDao.insert(raffleActivityStage);
+    }
+
+    @Override
+    public void updateStageActivity2Active(Long id) {
+        // 更新上架状态
+        raffleActivityStageDao.updateStageActivity2ActiveById(id);
+    }
+
+    @Override
+    public Long queryStageActiveBySC(String channel, String source) {
+        RaffleActivityStage raffleActivityStage = new RaffleActivityStage();
+        raffleActivityStage.setChannel(channel);
+        raffleActivityStage.setSource(source);
+        return raffleActivityStageDao.queryStageActiveBySC(raffleActivityStage);
+    }
+
+    @Override
+    public List<RaffleActivityStageEntity> queryStageActivityList() {
+        List<RaffleActivityStageEntity> raffleActivityStageEntities = new ArrayList<>();
+        List<RaffleActivityStage> list = raffleActivityStageDao.queryStageActivityList();
+        for (RaffleActivityStage raffleActivityStage : list) {
+            RaffleActivityStageEntity raffleActivityStageEntity = RaffleActivityStageEntity.builder()
+                    .id(raffleActivityStage.getId())
+                    .channel(raffleActivityStage.getChannel())
+                    .source(raffleActivityStage.getSource())
+                    .activityId(raffleActivityStage.getActivityId())
+                    .state(raffleActivityStage.getState())
+                    .build();
+            raffleActivityStageEntities.add(raffleActivityStageEntity);
+        }
+        return raffleActivityStageEntities;
+    }
+
+    @Override
+    public Long queryStageActivity2ActiveById(Long id) {
+        return raffleActivityStageDao.queryStageActivity2ActiveById(id);
     }
 
 }

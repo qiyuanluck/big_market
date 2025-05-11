@@ -1,7 +1,7 @@
 package cn.project.domain.activity.service.armory;
 
 import cn.project.domain.activity.model.entity.ActivitySkuEntity;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.types.common.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class ActivityArmory implements IActivityArmory, IActivityDispatch {
     public boolean assembleActivitySku(Long sku) {
         // 预热活动sku库存
         ActivitySkuEntity activitySkuEntity = activityRepository.queryActivitySku(sku);
-        cacheActivitySkuStockCount(sku, activitySkuEntity.getStockCount());
+        cacheActivitySkuStockCount(sku, activitySkuEntity.getStockCountSurplus());
 
         // 预热活动【查询时预热到缓存】
         activityRepository.queryRaffleActivityByActivityId(activitySkuEntity.getActivityId());

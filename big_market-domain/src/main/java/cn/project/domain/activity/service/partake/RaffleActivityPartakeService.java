@@ -3,7 +3,7 @@ package cn.project.domain.activity.service.partake;
 import cn.project.domain.activity.model.aggregate.CreatePartakeOrderAggregate;
 import cn.project.domain.activity.model.entity.*;
 import cn.project.domain.activity.model.valobj.UserRaffleOrderStateVO;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.types.enums.ResponseCode;
 import cn.project.types.exception.AppException;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -54,7 +54,7 @@ public class RaffleActivityPartakeService extends AbstractRaffleActivityPartake{
             activityAccountMonthEntity.setActivityId(activityId);
             activityAccountMonthEntity.setMonth(month);
             activityAccountMonthEntity.setMonthCount(activityAccountEntity.getMonthCount());
-            activityAccountMonthEntity.setMonthCountSurplus(activityAccountEntity.getMonthCountSurplus());
+            activityAccountMonthEntity.setMonthCountSurplus(activityAccountEntity.getMonthCount());
         }
 
         // 查询日账户额度
@@ -63,7 +63,7 @@ public class RaffleActivityPartakeService extends AbstractRaffleActivityPartake{
             throw new AppException(ResponseCode.ACCOUNT_DAY_QUOTA_ERROR.getCode(), ResponseCode.ACCOUNT_DAY_QUOTA_ERROR.getInfo());
         }
 
-        // 创建月账户额度；true = 存在月账户、false = 不存在月账户
+        // 创建日账户额度；true = 存在日账户、false = 不存在日账户
         boolean isExistAccountDay = null != activityAccountDayEntity;
         if (null == activityAccountDayEntity) {
             activityAccountDayEntity = new ActivityAccountDayEntity();
@@ -71,7 +71,7 @@ public class RaffleActivityPartakeService extends AbstractRaffleActivityPartake{
             activityAccountDayEntity.setActivityId(activityId);
             activityAccountDayEntity.setDay(day);
             activityAccountDayEntity.setDayCount(activityAccountEntity.getDayCount());
-            activityAccountDayEntity.setDayCountSurplus(activityAccountEntity.getDayCountSurplus());
+            activityAccountDayEntity.setDayCountSurplus(activityAccountEntity.getDayCount());
         }
 
         // 构建对象

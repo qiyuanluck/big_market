@@ -1,7 +1,7 @@
 package cn.project.domain.activity.service.product;
 
 import cn.project.domain.activity.model.entity.SkuProductEntity;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.domain.activity.service.IRaffleActivitySkuProductService;
 import org.springframework.stereotype.Service;
 

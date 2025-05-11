@@ -1,4 +1,4 @@
-package cn.project.domain.activity.repository;
+package cn.project.domain.activity.adapter.repository;
 
 import cn.project.domain.activity.model.aggregate.CreatePartakeOrderAggregate;
 import cn.project.domain.activity.model.aggregate.CreateQuotaOrderAggregate;
@@ -34,11 +34,17 @@ public interface IActivityRepository {
 
     ActivitySkuStockKeyVO takeQueueValue();
 
+    ActivitySkuStockKeyVO takeQueueValue(Long sku);
+
     void clearQueueValue();
+
+    void clearQueueValue(Long sku);
 
     void updateActivitySkuStock(Long sku);
 
     void clearActivitySkuStock(Long sku);
+
+    List<Long> querySkuList();
 
     UserRaffleOrderEntity queryNoUsedRaffleOrder(PartakeRaffleActivityEntity partakeRaffleActivityEntity);
 
@@ -65,4 +71,14 @@ public interface IActivityRepository {
     List<SkuProductEntity> querySkuProductEntityListByActivityId(Long activityId);
 
     BigDecimal queryUserCreditAccountAmount(String userId);
+
+    void appendStageActivity(String channel, String source, Long activityId);
+
+    void updateStageActivity2Active(Long id);
+
+    Long queryStageActiveBySC(String channel, String source);
+
+    List<RaffleActivityStageEntity> queryStageActivityList();
+
+    Long queryStageActivity2ActiveById(Long id);
 }

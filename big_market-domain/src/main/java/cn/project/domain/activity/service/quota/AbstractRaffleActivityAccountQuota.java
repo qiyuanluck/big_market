@@ -3,7 +3,7 @@ package cn.project.domain.activity.service.quota;
 import cn.project.domain.activity.model.aggregate.CreateQuotaOrderAggregate;
 import cn.project.domain.activity.model.entity.*;
 import cn.project.domain.activity.model.valobj.OrderTradeTypeVO;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.domain.activity.service.IRaffleActivityAccountQuotaService;
 import cn.project.domain.activity.service.quota.police.ITradePolicy;
 import cn.project.domain.activity.service.quota.rule.IActionChain;
@@ -84,5 +84,4 @@ public abstract class AbstractRaffleActivityAccountQuota extends RaffleActivityA
     protected abstract CreateQuotaOrderAggregate buildOrderAggregate(SkuRechargeEntity skuRechargeEntity, ActivitySkuEntity activitySkuEntity, ActivityEntity activityEntity, ActivityCountEntity activityCountEntity);
 
 }
-
 

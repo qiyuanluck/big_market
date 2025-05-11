@@ -4,7 +4,7 @@ import cn.project.domain.activity.model.entity.ActivityCountEntity;
 import cn.project.domain.activity.model.entity.ActivityEntity;
 import cn.project.domain.activity.model.entity.ActivitySkuEntity;
 import cn.project.domain.activity.model.valobj.ActivitySkuStockKeyVO;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.domain.activity.service.armory.IActivityDispatch;
 import cn.project.domain.activity.service.quota.rule.AbstractActionChain;
 import cn.project.types.enums.ResponseCode;

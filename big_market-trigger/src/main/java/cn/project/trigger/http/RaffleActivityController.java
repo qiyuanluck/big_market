@@ -5,6 +5,7 @@ import cn.project.domain.activity.model.valobj.OrderTradeTypeVO;
 import cn.project.domain.activity.service.IRaffleActivityAccountQuotaService;
 import cn.project.domain.activity.service.IRaffleActivityPartakeService;
 import cn.project.domain.activity.service.IRaffleActivitySkuProductService;
+import cn.project.domain.activity.service.IRaffleActivityStageService;
 import cn.project.domain.activity.service.armory.IActivityArmory;
 import cn.project.domain.auth.service.IAuthService;
 import cn.project.domain.award.model.entity.UserAwardRecordEntity;
@@ -76,7 +77,29 @@ public class RaffleActivityController implements IRaffleActivityService {
     private ICreditAdjustService creditAdjustService;
     @Resource
     private IAuthService authService;
+    @Resource
+    private IRaffleActivityStageService raffleActivityStageService;
 
+
+    @RequestMapping(value = "query_stage_activity_id", method = RequestMethod.GET)
+    @Override
+    public Response<Long> queryStageActivityId(@RequestParam String channel, @RequestParam String source) {
+        try {
+            Long activityId = raffleActivityStageService.queryStageActivityId(channel, source);
+            log.info("查询上架活动ID channel:{} source:{} activity:{}", channel, source, activityId);
+            return Response.<Long>builder()
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .info(ResponseCode.SUCCESS.getInfo())
+                    .data(activityId)
+                    .build();
+        } catch (Exception e) {
+            log.info("查询上架活动ID异常 channel:{} source:{}", channel, source, e);
+            return Response.<Long>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
 
     /**
      * 活动装配 - 数据预热 | 把活动配置的对应的 sku 一起装配
@@ -160,23 +183,23 @@ public class RaffleActivityController implements IRaffleActivityService {
                 throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
             }
 
-            // 2. 参数校验
+            // 1. 参数校验
             if (StringUtils.isBlank(request.getUserId()) || null == request.getActivityId()) {
                 throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
             }
 
-            // 3. 参与活动 - 创建参与记录订单
+            // 2. 参与活动 - 创建参与记录订单
             UserRaffleOrderEntity orderEntity = raffleActivityPartakeService.createOrder(request.getUserId(), request.getActivityId());
             log.info("活动抽奖，创建订单 userId:{} activityId:{} orderId:{}", request.getUserId(), request.getActivityId(), orderEntity.getOrderId());
 
-            // 4. 抽奖策略 - 执行抽奖
+            // 3. 抽奖策略 - 执行抽奖
             RaffleAwardEntity raffleAwardEntity = raffleStrategy.performRaffle(RaffleFactorEntity.builder()
                     .userId(orderEntity.getUserId())
                     .strategyId(orderEntity.getStrategyId())
                     .endDateTime(orderEntity.getEndDateTime())
                     .build());
 
-            // 5. 存放结果 - 写入中奖记录
+            // 4. 存放结果 - 写入中奖记录
             UserAwardRecordEntity userAwardRecord = UserAwardRecordEntity.builder()
                     .userId(orderEntity.getUserId())
                     .activityId(orderEntity.getActivityId())
@@ -191,7 +214,7 @@ public class RaffleActivityController implements IRaffleActivityService {
 
             awardService.saveUserAwardRecord(userAwardRecord);
 
-            // 6. 返回结果
+            // 5. 返回结果
             return Response.<ActivityDrawResponseDTO>builder()
                     .code(ResponseCode.SUCCESS.getCode())
                     .info(ResponseCode.SUCCESS.getInfo())

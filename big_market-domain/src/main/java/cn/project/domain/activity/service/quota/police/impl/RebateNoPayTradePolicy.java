@@ -2,7 +2,7 @@ package cn.project.domain.activity.service.quota.police.impl;
 
 import cn.project.domain.activity.model.aggregate.CreateQuotaOrderAggregate;
 import cn.project.domain.activity.model.valobj.OrderStateVO;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.domain.activity.service.quota.police.ITradePolicy;
 import org.springframework.stereotype.Service;
 

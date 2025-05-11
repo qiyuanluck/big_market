@@ -1,4 +1,4 @@
-package cn.project.domain.activity.event;
+package cn.project.domain.activity.adapter.event;
 
 import cn.project.types.event.BaseEvent;
 import org.apache.commons.lang3.RandomStringUtils;

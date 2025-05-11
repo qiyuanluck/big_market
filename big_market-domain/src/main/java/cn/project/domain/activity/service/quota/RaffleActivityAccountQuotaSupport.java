@@ -3,7 +3,7 @@ package cn.project.domain.activity.service.quota;
 import cn.project.domain.activity.model.entity.ActivityCountEntity;
 import cn.project.domain.activity.model.entity.ActivityEntity;
 import cn.project.domain.activity.model.entity.ActivitySkuEntity;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.domain.activity.service.quota.rule.factory.DefaultActivityChainFactory;
 
 /**
@@ -35,4 +35,3 @@ public class RaffleActivityAccountQuotaSupport {
     }
 
 }
-

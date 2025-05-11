@@ -3,8 +3,7 @@ package cn.project.domain.activity.service.quota;
 import cn.project.domain.activity.model.aggregate.CreateQuotaOrderAggregate;
 import cn.project.domain.activity.model.entity.*;
 import cn.project.domain.activity.model.valobj.ActivitySkuStockKeyVO;
-import cn.project.domain.activity.model.valobj.OrderStateVO;
-import cn.project.domain.activity.repository.IActivityRepository;
+import cn.project.domain.activity.adapter.repository.IActivityRepository;
 import cn.project.domain.activity.service.IRaffleActivitySkuStockService;
 import cn.project.domain.activity.service.quota.police.ITradePolicy;
 import cn.project.domain.activity.service.quota.rule.factory.DefaultActivityChainFactory;
@@ -12,6 +11,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,8 +61,18 @@ public class RaffleActivityAccountQuotaService extends AbstractRaffleActivityAcc
     }
 
     @Override
+    public ActivitySkuStockKeyVO takeQueueValue(Long sku) throws InterruptedException {
+        return activityRepository.takeQueueValue(sku);
+    }
+
+    @Override
     public void clearQueueValue() {
         activityRepository.clearQueueValue();
+    }
+
+    @Override
+    public void clearQueueValue(Long sku) {
+        activityRepository.clearQueueValue(sku);
     }
 
     @Override
@@ -73,6 +83,11 @@ public class RaffleActivityAccountQuotaService extends AbstractRaffleActivityAcc
     @Override
     public void clearActivitySkuStock(Long sku) {
         activityRepository.clearActivitySkuStock(sku);
+    }
+
+    @Override
+    public List<Long> querySkuList() {
+        return activityRepository.querySkuList();
     }
 
     @Override
