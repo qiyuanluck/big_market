@@ -10,6 +10,7 @@ import cn.project.domain.rebate.model.valobj.TaskStateVO;
 import cn.project.domain.rebate.repository.IBehaviorRebateRepository;
 import cn.project.types.common.Constants;
 import cn.project.types.event.BaseEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
  * @Date: 2025/03/04 15:17
  * @Description: 行为返利服务实现
  */
+@Slf4j
 @Service
 public class BehaviorRebateService implements IBehaviorRebateService {
 
@@ -33,8 +35,12 @@ public class BehaviorRebateService implements IBehaviorRebateService {
     @Override
     public List<String> createOrder(BehaviorEntity behaviorEntity) {
         // 1. 查询返利配置
+        log.info("查询返利配置");
         List<DailyBehaviorRebateVO> dailyBehaviorRebateVOS = behaviorRebateRepository.queryDailyBehaviorRebateConfig(behaviorEntity.getBehaviorTypeVO());
-        if (null == dailyBehaviorRebateVOS || dailyBehaviorRebateVOS.isEmpty()) return new ArrayList<>();
+        if (null == dailyBehaviorRebateVOS || dailyBehaviorRebateVOS.isEmpty()) {
+            log.info("查询返利配置为空");
+            return new ArrayList<>();
+        }
 
         // 2. 构建聚合对象
         List<String> orderIds = new ArrayList<>();
@@ -42,6 +48,7 @@ public class BehaviorRebateService implements IBehaviorRebateService {
         for (DailyBehaviorRebateVO dailyBehaviorRebateVO : dailyBehaviorRebateVOS) {
             // 拼装业务ID；用户ID_返利类型_外部透彻业务ID
             String bizId = behaviorEntity.getUserId() + Constants.UNDERLINE + dailyBehaviorRebateVO.getRebateType() + Constants.UNDERLINE + behaviorEntity.getOutBusinessNo();
+            log.info("业务id是" + bizId);
             BehaviorRebateOrderEntity behaviorRebateOrderEntity = BehaviorRebateOrderEntity.builder()
                     .userId(behaviorEntity.getUserId())
                     .orderId(RandomStringUtils.randomNumeric(12))
@@ -53,6 +60,7 @@ public class BehaviorRebateService implements IBehaviorRebateService {
                     .bizId(bizId)
                     .build();
             orderIds.add(behaviorRebateOrderEntity.getOrderId());
+            log.info("订单id是" + behaviorRebateOrderEntity.getOrderId());
 
             // MQ 消息对象
             SendRebateMessageEvent.RebateMessage rebateMessage = SendRebateMessageEvent.RebateMessage.builder()
@@ -83,6 +91,7 @@ public class BehaviorRebateService implements IBehaviorRebateService {
         }
 
         // 3. 存储聚合对象数据
+        log.info("存储聚合对象数据" + behaviorEntity.getUserId());
         behaviorRebateRepository.saveUserRebateRecord(behaviorEntity.getUserId(), behaviorRebateAggregates);
 
         // 4. 返回订单ID集合

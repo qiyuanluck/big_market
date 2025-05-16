@@ -84,6 +84,7 @@ public class ActivityRepository implements IActivityRepository {
                 .activityCountId(raffleActivitySku.getActivityCountId())
                 .stockCount(raffleActivitySku.getStockCount())
                 .stockCountSurplus(cacheSkuStock.intValue())
+//                .stockCountSurplus(raffleActivitySku.getStockCountSurplus())
                 .productAmount(raffleActivitySku.getProductAmount())
                 .build();
     }
